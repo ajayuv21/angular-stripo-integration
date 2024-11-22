@@ -1,0 +1,20 @@
+.stripo-builder-container {
+    display: flex; /* Use flexbox for side-by-side alignment */
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Prevent content overflow */
+  }
+  
+  .settings-panel {
+    width: 30%; /* Adjust width as needed */
+    min-width: 300px; /* Ensure a minimum width for usability */
+    background-color: #f9f9f9; /* Light background for contrast */
+    border-right: 1px solid #ddd; /* Add a subtle divider */
+    overflow-y: auto; /* Allow vertical scrolling */
+  }
+  
+  .preview-panel {
+    flex: 1; /* Take the remaining space */
+    background-color: #fff; /* White background for the preview */
+    overflow-y: auto; /* Allow vertical scrolling */
+  }
+  
