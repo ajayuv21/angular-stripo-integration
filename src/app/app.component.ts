@@ -1,21 +1,43 @@
-import { Component, NgZone } from '@angular/core';
-import { AppService } from './app.service';
+import { Component, NgZone, OnInit } from '@angular/core';
+import { AuthService } from './auth.service';
+
+declare const Stripo: any;
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'angular-stripo-integration';
+  token: string | null = null;
 
   constructor(
-    // private service:AppService,
-    private readonly zone: NgZone
+    private readonly zone: NgZone,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    // this.service.plugin()
+    this.getToken();
+  }
+
+  getToken(): void {
+    this.authService.fetchToken().subscribe({
+      next: (response: any) => {
+        this.token = response?.token; // Adjust to match the actual key in the response
+        console.log('Token fetched successfully:', this.token);
+
+        // Optionally store the token in local storage
+        localStorage.setItem('authToken', this.token || '');
+        this.initializeStripoEditor();
+      },
+      error: (err) => {
+        console.error('Error fetching token:', err);
+      },
+    });
+  }
+
+  initializeStripoEditor(): void {
     this.zone.runOutsideAngular(() => {
       const domContainer = document.querySelector('#stripoEditorContainer');
       if (!domContainer) {
@@ -27,19 +49,17 @@ export class AppComponent {
         metadata: {
           emailId: '1',
           username: 'AJAY UV',
-          email: 'AJAY UV',
+          email: 'ajay.uv@tudotechnologies.com',
         },
-        html: 'Your initial HTM',
+        settingsId: 'stripoSettingsContainer',
+        previewId: 'stripoPreviewContainer',
+        html: '',
         css: '.example { color: red; }',
-       
-        onTokenRefreshRequest: function (callback: (token: string) => void) {
-          const token ="eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiQWRtaW4iLCJ1c2VySWQiOiJBSkFZIFVWIiwic3ViIjoiMDEzZmI2M2UzMDc5NDBjZGI2OTY1ZTA5N2U5ZDU5ZjIiLCJleHAiOjE3MzIyNjk5MTJ9.etiBsPiaDrmmGzScMesMHf8IBID3k1j86hqUcj8NEhAHPIca0cOcG1Z8xn8ouc81-54aRDmDMnsWkgYWsQR3Tg"
-          callback(token);
+        apiRequestData: {
+          emailId: 'ajay.uv@tudotechnologies.com',
         },
-
-        textEditorAllowedPasteContent: {
-          tags: ['b', 'strong', 'i', 'a'],
-          attributes: ['href', 'target'],
+        onTokenRefreshRequest: (callback: (token: string) => void) => {
+          callback(this.token || ''); // Provide the token
         },
       };
 
@@ -47,7 +67,7 @@ export class AppComponent {
         window.UIEditor.initEditor(domContainer, stripoConfig);
       } else {
         console.error(
-          'UIEditor is not defined. Ensure the library is included.'
+          'UIEditor is not defined. Ensure the library is included and loaded.'
         );
       }
     });
